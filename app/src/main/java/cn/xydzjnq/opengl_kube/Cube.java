@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cube {
-    private List<GLFace> glFaceList = new ArrayList<>();
+    private GLFace[] mGLFaces = new GLFace[6];
 
     float[] red = new float[]{1.0f, 0.0f, 0.0f, 1.0f};
     float[] green = new float[]{0.0f, 1.0f, 0.0f, 1.0f};
@@ -26,22 +26,24 @@ public class Cube {
         GLVertex leftTopFront = new GLVertex(left, top, front);
         GLVertex rightTopFront = new GLVertex(right, top, front);
         //front
-        glFaceList.add(new GLFace(context, leftTopFront, leftBottomFront, rightBottomFront, rightTopFront, green));
+        mGLFaces[0] = new GLFace(context, leftTopFront, leftBottomFront, rightBottomFront, rightTopFront, green);
         //left
-        glFaceList.add(new GLFace(context, leftTopBack, leftBottomBack, leftBottomFront, leftTopFront, yellow));
+        mGLFaces[1] = new GLFace(context, leftTopBack, leftBottomBack, leftBottomFront, leftTopFront, yellow);
         //top
-        glFaceList.add(new GLFace(context, rightTopBack, leftTopBack, leftTopFront, rightTopFront, orange));
+        mGLFaces[2] = new GLFace(context, rightTopBack, leftTopBack, leftTopFront, rightTopFront, orange);
         //back
-        glFaceList.add(new GLFace(context, rightBottomBack, leftBottomBack, leftTopBack, rightTopBack, blue));
+        mGLFaces[3] = new GLFace(context, rightBottomBack, leftBottomBack, leftTopBack, rightTopBack, blue);
         //right
-        glFaceList.add(new GLFace(context, rightBottomFront, rightBottomBack, rightTopBack, rightTopFront, white));
+        mGLFaces[4] = new GLFace(context, rightBottomFront, rightBottomBack, rightTopBack, rightTopFront, white);
         //bottom
-        glFaceList.add(new GLFace(context, leftBottomFront, leftBottomBack, rightBottomBack, rightBottomFront, red));
+        mGLFaces[5] = new GLFace(context, leftBottomFront, leftBottomBack, rightBottomBack, rightBottomFront, red);
     }
 
     public void draw(float[] mvpMatrix) {
-        for (GLFace glFace : glFaceList) {
-            glFace.draw(mvpMatrix);
+        for (GLFace glFace : mGLFaces) {
+            if (glFace != null) {
+                glFace.draw(mvpMatrix);
+            }
         }
     }
 }
