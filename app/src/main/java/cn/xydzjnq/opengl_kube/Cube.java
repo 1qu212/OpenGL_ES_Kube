@@ -3,6 +3,7 @@ package cn.xydzjnq.opengl_kube;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Cube {
@@ -15,28 +16,63 @@ public class Cube {
     float[] orange = new float[]{1.0f, 0.5f, 0.0f, 1.0f};
     float[] white = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
     float[] black = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+    private final GLVertex leftBottomBack;
+    private final GLVertex rightBottomBack;
+    private final GLVertex leftTopBack;
+    private final GLVertex rightTopBack;
+    private final GLVertex leftBottomFront;
+    private final GLVertex rightBottomFront;
+    private final GLVertex leftTopFront;
+    private final GLVertex rightTopFront;
 
-    public Cube(Context context, float left, float bottom, float back, float right, float top, float front) {
-        GLVertex leftBottomBack = new GLVertex(left, bottom, back);
-        GLVertex rightBottomBack = new GLVertex(right, bottom, back);
-        GLVertex leftTopBack = new GLVertex(left, top, back);
-        GLVertex rightTopBack = new GLVertex(right, top, back);
-        GLVertex leftBottomFront = new GLVertex(left, bottom, front);
-        GLVertex rightBottomFront = new GLVertex(right, bottom, front);
-        GLVertex leftTopFront = new GLVertex(left, top, front);
-        GLVertex rightTopFront = new GLVertex(right, top, front);
+    public Cube(float left, float bottom, float back, float right, float top, float front) {
+        leftBottomBack = new GLVertex(left, bottom, back);
+        rightBottomBack = new GLVertex(right, bottom, back);
+        leftTopBack = new GLVertex(left, top, back);
+        rightTopBack = new GLVertex(right, top, back);
+        leftBottomFront = new GLVertex(left, bottom, front);
+        rightBottomFront = new GLVertex(right, bottom, front);
+        leftTopFront = new GLVertex(left, top, front);
+        rightTopFront = new GLVertex(right, top, front);
+    }
+
+    public void setData(Context context, Kube kube) {
         //front
-        mGLFaces[0] = new GLFace(context, leftTopFront, leftBottomFront, rightBottomFront, rightTopFront, green);
+        if (Arrays.asList(kube.layers[4].getCubes()).contains(this) || Arrays.asList(kube.layers[5].getCubes()).contains(this)) {
+            mGLFaces[0] = new GLFace(context, leftTopFront, leftBottomFront, rightBottomFront, rightTopFront, black);
+        } else {
+            mGLFaces[0] = new GLFace(context, leftTopFront, leftBottomFront, rightBottomFront, rightTopFront, green);
+        }
         //left
-        mGLFaces[1] = new GLFace(context, leftTopBack, leftBottomBack, leftBottomFront, leftTopFront, yellow);
+        if (Arrays.asList(kube.layers[7].getCubes()).contains(this) || Arrays.asList(kube.layers[8].getCubes()).contains(this)) {
+            mGLFaces[1] = new GLFace(context, leftTopBack, leftBottomBack, leftBottomFront, leftTopFront, black);
+        } else {
+            mGLFaces[1] = new GLFace(context, leftTopBack, leftBottomBack, leftBottomFront, leftTopFront, yellow);
+        }
         //top
-        mGLFaces[2] = new GLFace(context, rightTopBack, leftTopBack, leftTopFront, rightTopFront, orange);
+        if (Arrays.asList(kube.layers[1].getCubes()).contains(this) || Arrays.asList(kube.layers[2].getCubes()).contains(this)) {
+            mGLFaces[2] = new GLFace(context, rightTopBack, leftTopBack, leftTopFront, rightTopFront, black);
+        } else {
+            mGLFaces[2] = new GLFace(context, rightTopBack, leftTopBack, leftTopFront, rightTopFront, orange);
+        }
         //back
-        mGLFaces[3] = new GLFace(context, rightBottomBack, leftBottomBack, leftTopBack, rightTopBack, blue);
+        if (Arrays.asList(kube.layers[3].getCubes()).contains(this) || Arrays.asList(kube.layers[4].getCubes()).contains(this)) {
+            mGLFaces[3] = new GLFace(context, rightBottomBack, leftBottomBack, leftTopBack, rightTopBack, black);
+        } else {
+            mGLFaces[3] = new GLFace(context, rightBottomBack, leftBottomBack, leftTopBack, rightTopBack, blue);
+        }
         //right
-        mGLFaces[4] = new GLFace(context, rightBottomFront, rightBottomBack, rightTopBack, rightTopFront, white);
+        if (Arrays.asList(kube.layers[6].getCubes()).contains(this) || Arrays.asList(kube.layers[7].getCubes()).contains(this)) {
+            mGLFaces[4] = new GLFace(context, rightBottomFront, rightBottomBack, rightTopBack, rightTopFront, black);
+        } else {
+            mGLFaces[4] = new GLFace(context, rightBottomFront, rightBottomBack, rightTopBack, rightTopFront, white);
+        }
         //bottom
-        mGLFaces[5] = new GLFace(context, leftBottomFront, leftBottomBack, rightBottomBack, rightBottomFront, red);
+        if (Arrays.asList(kube.layers[0].getCubes()).contains(this) || Arrays.asList(kube.layers[1].getCubes()).contains(this)) {
+            mGLFaces[5] = new GLFace(context, leftBottomFront, leftBottomBack, rightBottomBack, rightBottomFront, black);
+        } else {
+            mGLFaces[5] = new GLFace(context, leftBottomFront, leftBottomBack, rightBottomBack, rightBottomFront, red);
+        }
     }
 
     public void draw(float[] mvpMatrix) {
