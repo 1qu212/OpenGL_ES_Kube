@@ -1,10 +1,9 @@
 package cn.xydzjnq.opengl_kube;
 
 import android.content.Context;
+import android.opengl.Matrix;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class Cube {
     private GLFace[] mGLFaces = new GLFace[6];
@@ -24,6 +23,7 @@ public class Cube {
     private final GLVertex rightBottomFront;
     private final GLVertex leftTopFront;
     private final GLVertex rightTopFront;
+    private float[] mModelMatrix = new float[16];
 
     public Cube(float left, float bottom, float back, float right, float top, float front) {
         leftBottomBack = new GLVertex(left, bottom, back);
@@ -34,6 +34,7 @@ public class Cube {
         rightBottomFront = new GLVertex(right, bottom, front);
         leftTopFront = new GLVertex(left, top, front);
         rightTopFront = new GLVertex(right, top, front);
+        Matrix.setIdentityM(mModelMatrix, 0);
     }
 
     public void setData(Context context, Kube kube) {
@@ -75,7 +76,15 @@ public class Cube {
         }
     }
 
-    public void draw(float[] mvpMatrix) {
+    public void setModelMatrix(float[] angleMatrix) {
+        Matrix.multiplyMM(mModelMatrix, 0, angleMatrix, 0, mModelMatrix, 0);
+    }
+
+    public void draw(float[] modelMatrix, float[] vpMatrix) {
+        float[] mvpMatrix = new float[16];
+        Matrix.setIdentityM(mvpMatrix, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, modelMatrix, 0, mModelMatrix, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, vpMatrix, 0, mvpMatrix, 0);
         for (GLFace glFace : mGLFaces) {
             if (glFace != null) {
                 glFace.draw(mvpMatrix);

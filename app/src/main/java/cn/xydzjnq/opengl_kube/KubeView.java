@@ -23,14 +23,17 @@ public class KubeView extends GLSurfaceView {
         setRenderer(mRenderer);
     }
 
-    public class KubeRenderer implements GLSurfaceView.Renderer {
+    public class KubeRenderer implements Renderer {
         private Kube mKube;
         private Context mContext;
+        private float mAngle = 0;
 
-        private final float[] vPMatrix = new float[16];
+        private final float[] vpMatrix = new float[16];
+        private final float[] vpLayerMatrix = new float[16];
         private final float[] projectionMatrix = new float[16];
         private final float[] viewMatrix = new float[16];
         private final float[] modelMatrix = new float[16];
+        private final float[] currentAngleMatrix = new float[16];
 
         public KubeRenderer(Context context) {
             mContext = context;
@@ -39,15 +42,15 @@ public class KubeView extends GLSurfaceView {
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig eglConfig) {
             mKube = new Kube(mContext);
+            Matrix.setIdentityM(currentAngleMatrix, 0);
+            mKube.rotateLayer();
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             GLES20.glViewport(0, 0, width, height);
             float ratio = (float) width / height;
-            // this projection matrix is applied to object coordinates
-            // in the onDrawFrame() method
-            Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 2, 12);
+            Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 2, 6);
             GLES20.glDisable(GL10.GL_DITHER);
         }
 
@@ -55,16 +58,27 @@ public class KubeView extends GLSurfaceView {
         public void onDrawFrame(GL10 gl) {
             GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-            Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            Matrix.setLookAtM(viewMatrix, 0, 1, 1, 3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.setIdentityM(modelMatrix, 0);
             Matrix.scaleM(modelMatrix, 0, 0.5f, 0.5f, 0.5f);
-            Matrix.rotateM(modelMatrix, 0, 30.0f, 0, 1, 0);
-            Matrix.rotateM(modelMatrix, 0, 7.5f, 1, 0, 0);
-            Matrix.multiplyMM(vPMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-            Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, vPMatrix, 0);
+//            Matrix.rotateM(modelMatrix, 0, 30.0f, 0, 1, 0);
+//            Matrix.rotateM(modelMatrix, 0, 7.5f, 1, 0, 0);
+            Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+            mAngle += 3.0f;
+            int axis = mKube.currentLayer.getmAxis();
+            Matrix.rotateM(currentAngleMatrix, 0, 3.0f, axis == Layer.sAxisX ? 1 : 0, axis == Layer.sAxisY ? 1 : 0, axis == Layer.sAxisZ ? 1 : 0);
+            if (mAngle >= 90) {
+                mKube.setModelMatrix(currentAngleMatrix);
+                Matrix.setIdentityM(currentAngleMatrix, 0);
+                mKube.updateLayer();
+                mKube.rotateLayer();
+                mAngle = 0;
+            }
+            Matrix.multiplyMM(vpLayerMatrix, 0, viewMatrix, 0, currentAngleMatrix, 0);
+            Matrix.multiplyMM(vpLayerMatrix, 0, projectionMatrix, 0, vpLayerMatrix, 0);
             GLES20.glEnable(GLES20.GL_CULL_FACE);
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-            mKube.draw(vPMatrix);
+            mKube.draw(modelMatrix, vpLayerMatrix, vpMatrix);
         }
     }
 }
