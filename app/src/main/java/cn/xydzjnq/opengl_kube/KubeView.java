@@ -27,6 +27,7 @@ public class KubeView extends GLSurfaceView {
         private Kube mKube;
         private Context mContext;
         private float mAngle = 0;
+        private float mWholeAngle = 0;
 
         private final float[] vpMatrix = new float[16];
         private final float[] vpLayerMatrix = new float[16];
@@ -42,6 +43,8 @@ public class KubeView extends GLSurfaceView {
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig eglConfig) {
             mKube = new Kube(mContext);
+            mAngle = 0;
+            mWholeAngle = 0;
             Matrix.setIdentityM(currentAngleMatrix, 0);
             mKube.rotateLayer();
         }
@@ -56,17 +59,18 @@ public class KubeView extends GLSurfaceView {
 
         @Override
         public void onDrawFrame(GL10 gl) {
+            mWholeAngle += 1.2f;
             GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
             Matrix.setLookAtM(viewMatrix, 0, 1, 1, 3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.setIdentityM(modelMatrix, 0);
             Matrix.scaleM(modelMatrix, 0, 0.5f, 0.5f, 0.5f);
-//            Matrix.rotateM(modelMatrix, 0, 30.0f, 0, 1, 0);
-//            Matrix.rotateM(modelMatrix, 0, 7.5f, 1, 0, 0);
+            Matrix.rotateM(viewMatrix, 0, mWholeAngle, 0, 1, 0);
+            Matrix.rotateM(viewMatrix, 0, mWholeAngle * 0.25f, 1, 0, 0);
             Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
-            mAngle += 3.0f;
+            mAngle += 4.5f;
             int axis = mKube.currentLayer.getmAxis();
-            Matrix.rotateM(currentAngleMatrix, 0, 3.0f, axis == Layer.sAxisX ? 1 : 0, axis == Layer.sAxisY ? 1 : 0, axis == Layer.sAxisZ ? 1 : 0);
+            Matrix.rotateM(currentAngleMatrix, 0, 4.5f, axis == Layer.sAxisX ? 1 : 0, axis == Layer.sAxisY ? 1 : 0, axis == Layer.sAxisZ ? 1 : 0);
             if (mAngle >= 90) {
                 mKube.setModelMatrix(currentAngleMatrix);
                 Matrix.setIdentityM(currentAngleMatrix, 0);
